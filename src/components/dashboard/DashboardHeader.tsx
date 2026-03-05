@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Radar, Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const DashboardHeader = () => {
   return (
@@ -18,9 +19,17 @@ const DashboardHeader = () => {
           <p className="text-xs text-muted-foreground">Customer & Marketing Intelligence</p>
         </div>
       </div>
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border">
-        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-        <span className="text-xs font-mono text-muted-foreground">Feb 2026</span>
+      <div className="flex items-center gap-3">
+        <Link
+          to="/financial"
+          className="px-4 py-1.5 rounded-lg bg-secondary/50 border border-border text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Financial Health →
+        </Link>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border">
+          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+          <span className="text-xs font-mono text-muted-foreground">Feb 2026</span>
+        </div>
       </div>
     </motion.header>
   );
