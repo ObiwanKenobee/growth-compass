@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { TrendingDown, TrendingUp, AlertTriangle } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
-import { cacData, ltvData, churnData } from "@/data/dashboardData";
+import { useGrowthRadarData } from "@/hooks/useDashboardData";
 
 interface MetricCardProps {
   title: string;
@@ -9,13 +9,14 @@ interface MetricCardProps {
   subtitle?: string;
   trend: number;
   trendLabel: string;
-  data: { month: string; value: number }[];
+  data: { month?: string; value: number }[];
   color: string;
   invertTrend?: boolean;
   delay: number;
+  isLoading?: boolean;
 }
 
-const MetricCard = ({ title, value, subtitle, trend, trendLabel, data, color, invertTrend, delay }: MetricCardProps) => {
+const MetricCard = ({ title, value, subtitle, trend, trendLabel, data, color, invertTrend, delay, isLoading }: MetricCardProps) => {
   const isPositive = invertTrend ? trend < 0 : trend > 0;
 
   return (
@@ -28,21 +29,27 @@ const MetricCard = ({ title, value, subtitle, trend, trendLabel, data, color, in
       <div className="absolute inset-0 gradient-glow pointer-events-none" />
       <div className="relative z-10">
         <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">{title}</p>
-        <div className="flex items-end gap-3 mt-2">
-          <span className="text-4xl font-bold font-display tracking-tight text-foreground">{value}</span>
-          {subtitle && <span className="text-sm text-muted-foreground mb-1">{subtitle}</span>}
-        </div>
-        <div className="flex items-center gap-1.5 mt-2">
-          {isPositive ? (
-            <TrendingUp className="w-4 h-4 text-success" />
-          ) : (
-            <TrendingDown className="w-4 h-4 text-danger" />
-          )}
-          <span className={`text-sm font-mono font-medium ${isPositive ? "text-success" : "text-danger"}`}>
-            {trend > 0 ? "+" : ""}{trend}%
-          </span>
-          <span className="text-xs text-muted-foreground ml-1">{trendLabel}</span>
-        </div>
+        {isLoading ? (
+          <div className="h-10 w-32 bg-secondary/60 rounded animate-pulse mt-2" />
+        ) : (
+          <>
+            <div className="flex items-end gap-3 mt-2">
+              <span className="text-4xl font-bold font-display tracking-tight text-foreground">{value}</span>
+              {subtitle && <span className="text-sm text-muted-foreground mb-1">{subtitle}</span>}
+            </div>
+            <div className="flex items-center gap-1.5 mt-2">
+              {isPositive ? (
+                <TrendingUp className="w-4 h-4 text-success" />
+              ) : (
+                <TrendingDown className="w-4 h-4 text-danger" />
+              )}
+              <span className={`text-sm font-mono font-medium ${isPositive ? "text-success" : "text-danger"}`}>
+                {trend > 0 ? "+" : ""}{trend}%
+              </span>
+              <span className="text-xs text-muted-foreground ml-1">{trendLabel}</span>
+            </div>
+          </>
+        )}
       </div>
       <div className="h-20 -mx-2 mt-auto">
         <ResponsiveContainer width="100%" height="100%">
@@ -69,6 +76,8 @@ const MetricCard = ({ title, value, subtitle, trend, trendLabel, data, color, in
 };
 
 const GrowthRadar = () => {
+  const { isLoading, cac, ltv, churn } = useGrowthRadarData();
+
   return (
     <section>
       <motion.div
@@ -84,34 +93,37 @@ const GrowthRadar = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <MetricCard
           title="Customer Acquisition Cost"
-          value={`$${cacData.current.toLocaleString()}`}
-          trend={cacData.trend}
+          value={`$${Number(cac.current).toLocaleString()}`}
+          trend={cac.trend}
           trendLabel="vs 6mo ago"
-          data={cacData.history}
+          data={cac.history}
           color="hsl(162, 63%, 45%)"
           invertTrend
           delay={0.1}
+          isLoading={isLoading}
         />
         <MetricCard
           title="Lifetime Value"
-          value={`$${ltvData.current.toLocaleString()}`}
-          subtitle={`avg ${ltvData.avgDuration}`}
-          trend={ltvData.trend}
+          value={`$${Number(ltv.current).toLocaleString()}`}
+          subtitle={`avg ${ltv.avgDuration}`}
+          trend={ltv.trend}
           trendLabel="vs 6mo ago"
-          data={ltvData.history}
+          data={ltv.history}
           color="hsl(200, 70%, 55%)"
           delay={0.2}
+          isLoading={isLoading}
         />
         <MetricCard
           title="Churn Rate"
-          value={`${churnData.current}%`}
+          value={`${churn.current}%`}
           subtitle="monthly"
-          trend={churnData.trend}
+          trend={churn.trend}
           trendLabel="12mo rolling"
-          data={churnData.history}
+          data={churn.history}
           color="hsl(38, 90%, 55%)"
           invertTrend
           delay={0.3}
+          isLoading={isLoading}
         />
       </div>
     </section>
