@@ -19,12 +19,18 @@ const DashboardHeader = () => {
           <p className="text-xs text-muted-foreground">Customer & Marketing Intelligence</p>
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 flex-wrap">
         <Link
           to="/financial"
-          className="px-4 py-1.5 rounded-lg bg-secondary/50 border border-border text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="px-3 py-1.5 rounded-lg bg-secondary/50 border border-border text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           Financial Health →
+        </Link>
+        <Link
+          to="/admin"
+          className="px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-xs text-accent hover:bg-accent/20 transition-colors"
+        >
+          Admin
         </Link>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-border">
           <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
