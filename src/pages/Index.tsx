@@ -9,6 +9,11 @@ import RetentionCohort from "@/components/dashboard/RetentionCohort";
 import CustomerFunnel from "@/components/dashboard/CustomerFunnel";
 import ExpansionRevenue from "@/components/dashboard/ExpansionRevenue";
 import StrategicIntel from "@/components/dashboard/StrategicIntel";
+import NRRTracker from "@/components/dashboard/NRRTracker";
+import CustomerHealth from "@/components/dashboard/CustomerHealth";
+import PipelineVelocity from "@/components/dashboard/PipelineVelocity";
+import CompetitiveAnalysis from "@/components/dashboard/CompetitiveAnalysis";
+import RevenueConcentration from "@/components/dashboard/RevenueConcentration";
 
 const Index = () => {
   return (
@@ -18,16 +23,25 @@ const Index = () => {
           <DashboardHeader />
           <DashboardFilters />
           <GrowthRadar />
-          <UnitEconomics />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <NRRTracker />
+            <UnitEconomics />
+          </div>
+          <PipelineVelocity />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <AcquisitionChannels />
             <CustomerSegments />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <CustomerHealth />
+            <CompetitiveAnalysis />
           </div>
           <RetentionCohort />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <CustomerFunnel />
             <ExpansionRevenue />
           </div>
+          <RevenueConcentration />
           <StrategicIntel />
         </div>
       </div>
