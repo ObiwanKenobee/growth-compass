@@ -130,3 +130,72 @@ export const engagementMetrics = {
   ecosystemAnalyses: { value: 8200, trend: 28 },
   reportsGenerated: { value: 5600, trend: 18 },
 };
+
+export const nrrData = {
+  current: 124,
+  target: 110,
+  history: [
+    { month: "Sep", value: 108 },
+    { month: "Oct", value: 112 },
+    { month: "Nov", value: 115 },
+    { month: "Dec", value: 118 },
+    { month: "Jan", value: 121 },
+    { month: "Feb", value: 124 },
+  ],
+  components: [
+    { label: "Expansion", value: 32 },
+    { label: "Contraction", value: -5 },
+    { label: "Churn", value: -3 },
+  ],
+};
+
+export const customerHealthData = {
+  summary: { healthy: 68, atRisk: 22, churning: 10 },
+  accounts: [
+    { name: "Norwegian Sovereign Fund", score: 92, status: "healthy", reason: "High engagement, expanding usage" },
+    { name: "UNEP Climate Division", score: 88, status: "healthy", reason: "Active pilot, strong NPS" },
+    { name: "Brazilian Ministry of Environment", score: 45, status: "at-risk", reason: "Declining logins, delayed renewal" },
+    { name: "Patagonia Supply Chain", score: 78, status: "healthy", reason: "Steady usage, recent upsell" },
+    { name: "Carbon Trust UK", score: 35, status: "at-risk", reason: "Budget constraints, reduced scope" },
+    { name: "GreenTech Ventures", score: 18, status: "churning", reason: "No activity in 45 days" },
+  ],
+};
+
+export const pipelineData = {
+  velocity: 485000,
+  avgDealSize: 52000,
+  avgCycleTime: 68,
+  winRate: 34,
+  monthlyDeals: [
+    { month: "Sep", won: 8, lost: 14 },
+    { month: "Oct", won: 11, lost: 12 },
+    { month: "Nov", won: 9, lost: 15 },
+    { month: "Dec", won: 14, lost: 10 },
+    { month: "Jan", won: 12, lost: 11 },
+    { month: "Feb", won: 16, lost: 9 },
+  ],
+};
+
+export const competitiveData = {
+  overallWinRate: 62,
+  competitors: [
+    { name: "Verra Analytics", wins: 18, losses: 8, topReason: "Better accuracy" },
+    { name: "Gold Standard Tech", wins: 14, losses: 12, topReason: "Price pressure" },
+    { name: "Pachama Platform", wins: 10, losses: 14, topReason: "Faster deploy" },
+    { name: "Sylvera AI", wins: 12, losses: 6, topReason: "Data depth" },
+  ],
+};
+
+export const revenueConcentrationData = {
+  metrics: { top1Pct: 18, top5Pct: 52, herfindahl: 0.08 },
+  topCustomers: [
+    { name: "Norwegian Sovereign Fund", revenue: 680000, pct: 18 },
+    { name: "UNEP Climate Division", revenue: 420000, pct: 11 },
+    { name: "Brazilian Gov Environment", revenue: 340000, pct: 9 },
+    { name: "Patagonia Inc.", revenue: 280000, pct: 7.5 },
+    { name: "Carbon Trust UK", revenue: 260000, pct: 7 },
+    { name: "World Wildlife Fund", revenue: 220000, pct: 5.8 },
+    { name: "Goldman Sachs ESG", revenue: 195000, pct: 5.2 },
+    { name: "EU Climate Directorate", revenue: 180000, pct: 4.8 },
+  ],
+};
