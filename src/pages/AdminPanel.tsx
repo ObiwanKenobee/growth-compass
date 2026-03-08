@@ -20,6 +20,11 @@ const tables: { name: TableName; label: string; fields: string[] }[] = [
   { name: "expansion_revenue", label: "Expansion Revenue", fields: ["total", "tier_upgrades", "new_services", "geo_expansion", "period_month"] },
   { name: "financial_data", label: "Financial Data", fields: ["data_type", "label", "value", "percentage", "color", "period_month"] },
   { name: "cohort_retention", label: "Cohort Retention", fields: ["cohort_label", "month_index", "retention_pct"] },
+  { name: "nrr_tracking", label: "NRR Tracking", fields: ["nrr_value", "expansion", "contraction", "churn", "target", "period_month"] },
+  { name: "customer_health", label: "Customer Health", fields: ["name", "score", "status", "reason", "revenue", "nps_score", "feature_adoption_pct"] },
+  { name: "pipeline_velocity", label: "Pipeline Velocity", fields: ["velocity", "avg_deal_size", "avg_cycle_time", "win_rate", "deals_won", "deals_lost", "period_month"] },
+  { name: "competitive_analysis", label: "Competitive Analysis", fields: ["competitor_name", "wins", "losses", "top_reason", "period_month"] },
+  { name: "revenue_concentration", label: "Revenue Concentration", fields: ["customer_name", "revenue", "revenue_pct", "segment", "risk_level", "growth_trend"] },
 ];
 
 const AdminPanel = () => {
