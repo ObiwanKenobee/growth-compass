@@ -1,5 +1,6 @@
 import { FilterProvider } from "@/contexts/FilterContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
 import GrowthRadar from "@/components/dashboard/GrowthRadar";
 import UnitEconomics from "@/components/dashboard/UnitEconomics";
@@ -16,6 +17,8 @@ import CompetitiveAnalysis from "@/components/dashboard/CompetitiveAnalysis";
 import RevenueConcentration from "@/components/dashboard/RevenueConcentration";
 
 const Index = () => {
+  useRealtimeSubscription();
+
   return (
     <FilterProvider>
       <div className="min-h-screen bg-background">

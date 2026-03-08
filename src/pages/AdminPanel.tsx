@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthGate } from "@/components/admin/AuthGate";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Settings, LogOut, Plus, Trash2, Save, RefreshCw } from "lucide-react";
+import { Settings, LogOut, Plus, Trash2, Save, RefreshCw, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserRole } from "@/hooks/useUserRole";
 import type { User } from "@supabase/supabase-js";
 
-type TableName = "dashboard_metrics" | "acquisition_channels" | "customer_segments" | "funnel_stages" | "strategic_intel" | "expansion_revenue" | "financial_data" | "cohort_retention";
+type TableName = "dashboard_metrics" | "acquisition_channels" | "customer_segments" | "funnel_stages" | "strategic_intel" | "expansion_revenue" | "financial_data" | "cohort_retention" | "nrr_tracking" | "customer_health" | "pipeline_velocity" | "competitive_analysis" | "revenue_concentration";
 
 const tables: { name: TableName; label: string; fields: string[] }[] = [
   { name: "dashboard_metrics", label: "Dashboard Metrics", fields: ["metric_type", "value", "period_month"] },
@@ -19,6 +20,11 @@ const tables: { name: TableName; label: string; fields: string[] }[] = [
   { name: "expansion_revenue", label: "Expansion Revenue", fields: ["total", "tier_upgrades", "new_services", "geo_expansion", "period_month"] },
   { name: "financial_data", label: "Financial Data", fields: ["data_type", "label", "value", "percentage", "color", "period_month"] },
   { name: "cohort_retention", label: "Cohort Retention", fields: ["cohort_label", "month_index", "retention_pct"] },
+  { name: "nrr_tracking", label: "NRR Tracking", fields: ["nrr_value", "expansion", "contraction", "churn", "target", "period_month"] },
+  { name: "customer_health", label: "Customer Health", fields: ["name", "score", "status", "reason", "revenue", "nps_score", "feature_adoption_pct"] },
+  { name: "pipeline_velocity", label: "Pipeline Velocity", fields: ["velocity", "avg_deal_size", "avg_cycle_time", "win_rate", "deals_won", "deals_lost", "period_month"] },
+  { name: "competitive_analysis", label: "Competitive Analysis", fields: ["competitor_name", "wins", "losses", "top_reason", "period_month"] },
+  { name: "revenue_concentration", label: "Revenue Concentration", fields: ["customer_name", "revenue", "revenue_pct", "segment", "risk_level", "growth_trend"] },
 ];
 
 const AdminPanel = () => {
@@ -28,6 +34,7 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const { isAdmin, loading: roleLoading } = useUserRole(user);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -122,6 +129,17 @@ const AdminPanel = () => {
             </div>
           </motion.header>
 
+          {/* Role Guard */}
+          {!roleLoading && !isAdmin && (
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-warning/5 border border-warning/20">
+              <ShieldAlert className="w-5 h-5 text-warning flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-warning">Read-only access</p>
+                <p className="text-xs text-muted-foreground">You need admin privileges to modify data. Contact an administrator to get the admin role assigned.</p>
+              </div>
+            </div>
+          )}
+
           {/* Table Selector */}
           <div className="flex gap-2 flex-wrap">
             {tables.map(t => (
@@ -141,7 +159,7 @@ const AdminPanel = () => {
 
           {/* Actions */}
           <div className="flex gap-2">
-            <button onClick={handleAdd} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1 hover:bg-primary/90 transition-colors">
+            <button onClick={handleAdd} disabled={!isAdmin} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1 hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
               <Plus className="w-3 h-3" /> Add Row
             </button>
             <button onClick={fetchRows} className="px-4 py-2 rounded-lg bg-secondary border border-border text-xs text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors">
@@ -176,13 +194,14 @@ const AdminPanel = () => {
                                 className="w-full px-2 py-1 rounded bg-secondary border border-border text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
                               />
                             ) : (
-                              <span className="text-foreground cursor-pointer" onClick={() => startEdit(row)}>
+                              <span className={`text-foreground ${isAdmin ? "cursor-pointer" : ""}`} onClick={() => isAdmin && startEdit(row)}>
                                 {String(row[f] ?? "—")}
                               </span>
                             )}
                           </td>
                         ))}
                         <td className="p-3">
+                          {isAdmin && (
                           <div className="flex gap-1">
                             {editingId === row.id ? (
                               <button onClick={() => handleSave(row.id)} className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
@@ -197,6 +216,7 @@ const AdminPanel = () => {
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
+                          )}
                         </td>
                       </tr>
                     ))}

@@ -18,7 +18,7 @@ interface RevenueConcentrationModalProps {
 }
 
 const RevenueConcentrationModal = ({ customer, open, onOpenChange }: RevenueConcentrationModalProps) => {
-  if (!customer) return null;
+  if (!customer) return <Dialog open={false} onOpenChange={onOpenChange}><DialogContent className="hidden" /></Dialog>;
 
   const riskColor = customer.riskLevel === "high" ? "text-danger" : customer.riskLevel === "medium" ? "text-warning" : "text-success";
   const RiskIcon = customer.riskLevel === "high" ? AlertTriangle : ShieldCheck;
