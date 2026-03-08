@@ -17,6 +17,8 @@ import CompetitiveAnalysis from "@/components/dashboard/CompetitiveAnalysis";
 import RevenueConcentration from "@/components/dashboard/RevenueConcentration";
 
 const Index = () => {
+  useRealtimeSubscription();
+
   return (
     <FilterProvider>
       <div className="min-h-screen bg-background">

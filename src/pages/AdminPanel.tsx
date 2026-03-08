@@ -3,12 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { AuthGate } from "@/components/admin/AuthGate";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Settings, LogOut, Plus, Trash2, Save, RefreshCw } from "lucide-react";
+import { Settings, LogOut, Plus, Trash2, Save, RefreshCw, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserRole } from "@/hooks/useUserRole";
 import type { User } from "@supabase/supabase-js";
 
-type TableName = "dashboard_metrics" | "acquisition_channels" | "customer_segments" | "funnel_stages" | "strategic_intel" | "expansion_revenue" | "financial_data" | "cohort_retention";
+type TableName = "dashboard_metrics" | "acquisition_channels" | "customer_segments" | "funnel_stages" | "strategic_intel" | "expansion_revenue" | "financial_data" | "cohort_retention" | "nrr_tracking" | "customer_health" | "pipeline_velocity" | "competitive_analysis" | "revenue_concentration";
 
 const tables: { name: TableName; label: string; fields: string[] }[] = [
   { name: "dashboard_metrics", label: "Dashboard Metrics", fields: ["metric_type", "value", "period_month"] },
