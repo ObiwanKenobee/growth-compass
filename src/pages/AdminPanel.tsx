@@ -194,13 +194,14 @@ const AdminPanel = () => {
                                 className="w-full px-2 py-1 rounded bg-secondary border border-border text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
                               />
                             ) : (
-                              <span className="text-foreground cursor-pointer" onClick={() => startEdit(row)}>
+                              <span className={`text-foreground ${isAdmin ? "cursor-pointer" : ""}`} onClick={() => isAdmin && startEdit(row)}>
                                 {String(row[f] ?? "—")}
                               </span>
                             )}
                           </td>
                         ))}
                         <td className="p-3">
+                          {isAdmin && (
                           <div className="flex gap-1">
                             {editingId === row.id ? (
                               <button onClick={() => handleSave(row.id)} className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
