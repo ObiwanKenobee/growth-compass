@@ -60,7 +60,7 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
           </div>
           <div>
             <h2 className="text-lg font-bold font-display text-foreground">Admin Access</h2>
-            <p className="text-xs text-muted-foreground">{isSignUp ? "Create account" : "Sign in to manage data"}</p>
+            <p className="text-xs text-muted-foreground">{isForgot ? "Reset your password" : isSignUp ? "Create account" : "Sign in to manage data"}</p>
           </div>
         </div>
         <form onSubmit={handleAuth} className="space-y-4">
