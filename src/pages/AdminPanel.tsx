@@ -216,6 +216,7 @@ const AdminPanel = () => {
                               <Trash2 className="w-3 h-3" />
                             </button>
                           </div>
+                          )}
                         </td>
                       </tr>
                     ))}
