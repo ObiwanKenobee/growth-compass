@@ -52,9 +52,33 @@ export default function AuditLog({ isAdmin }: { isAdmin: boolean }) {
           <History className="w-4 h-4 text-accent" />
           <h2 className="text-sm font-semibold text-foreground">Audit Log</h2>
         </div>
-        <button onClick={fetchLog} className="px-3 py-1.5 rounded-lg bg-secondary border border-border text-xs text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors">
-          <RefreshCw className="w-3 h-3" /> Refresh
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const csvData = entries.map(e => ({
+                when: new Date(e.changed_at).toISOString(),
+                action: e.action,
+                table: e.table_name,
+                record_id: e.record_id,
+                changes: e.action === "UPDATE" && e.old_data && e.new_data
+                  ? Object.keys(e.new_data)
+                      .filter(k => k !== "created_at" && JSON.stringify(e.old_data![k]) !== JSON.stringify(e.new_data![k]))
+                      .map(k => `${k}: ${e.old_data![k]} → ${e.new_data![k]}`)
+                      .join("; ")
+                  : e.action === "DELETE" ? "record removed" : "new record",
+                user: e.changed_by || "",
+              }));
+              exportToCSV(csvData, `audit-log-${new Date().toISOString().slice(0, 10)}`);
+            }}
+            disabled={entries.length === 0}
+            className="px-3 py-1.5 rounded-lg bg-secondary border border-border text-xs text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors disabled:opacity-40"
+          >
+            <Download className="w-3 h-3" /> Export CSV
+          </button>
+          <button onClick={fetchLog} className="px-3 py-1.5 rounded-lg bg-secondary border border-border text-xs text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors">
+            <RefreshCw className="w-3 h-3" /> Refresh
+          </button>
+        </div>
       </div>
 
       <div className="rounded-xl border border-border gradient-card shadow-card overflow-hidden">
