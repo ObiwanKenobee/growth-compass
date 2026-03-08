@@ -2,6 +2,7 @@ import { FilterProvider } from "@/contexts/FilterContext";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import DashboardFilters from "@/components/dashboard/DashboardFilters";
+import ExecutiveSummary from "@/components/dashboard/ExecutiveSummary";
 import GrowthRadar from "@/components/dashboard/GrowthRadar";
 import UnitEconomics from "@/components/dashboard/UnitEconomics";
 import AcquisitionChannels from "@/components/dashboard/AcquisitionChannels";
