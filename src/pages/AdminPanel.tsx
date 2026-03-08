@@ -247,6 +247,9 @@ const AdminPanel = () => {
             )}
           </div>
 
+          {/* Audit Log */}
+          <AuditLog isAdmin={isAdmin} />
+
           {/* User Management */}
           <UserManagement isAdmin={isAdmin} />
         </div>
