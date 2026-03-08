@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { History, RefreshCw } from "lucide-react";
+import { History, RefreshCw, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { exportToCSV } from "@/lib/exportUtils";
 
 interface AuditEntry {
   id: string;
