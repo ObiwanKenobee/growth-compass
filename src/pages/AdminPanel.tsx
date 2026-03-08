@@ -129,6 +129,17 @@ const AdminPanel = () => {
             </div>
           </motion.header>
 
+          {/* Role Guard */}
+          {!roleLoading && !isAdmin && (
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-warning/5 border border-warning/20">
+              <ShieldAlert className="w-5 h-5 text-warning flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-warning">Read-only access</p>
+                <p className="text-xs text-muted-foreground">You need admin privileges to modify data. Contact an administrator to get the admin role assigned.</p>
+              </div>
+            </div>
+          )}
+
           {/* Table Selector */}
           <div className="flex gap-2 flex-wrap">
             {tables.map(t => (
@@ -148,7 +159,7 @@ const AdminPanel = () => {
 
           {/* Actions */}
           <div className="flex gap-2">
-            <button onClick={handleAdd} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1 hover:bg-primary/90 transition-colors">
+            <button onClick={handleAdd} disabled={!isAdmin} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1 hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
               <Plus className="w-3 h-3" /> Add Row
             </button>
             <button onClick={fetchRows} className="px-4 py-2 rounded-lg bg-secondary border border-border text-xs text-muted-foreground flex items-center gap-1 hover:text-foreground transition-colors">
