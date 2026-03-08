@@ -34,6 +34,7 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const { isAdmin, loading: roleLoading } = useUserRole(user);
   const queryClient = useQueryClient();
 
   useEffect(() => {
