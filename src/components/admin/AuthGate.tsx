@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { LogIn, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface AuthGateProps {
   children: React.ReactNode;
