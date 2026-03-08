@@ -111,7 +111,6 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
         >
           {isForgot ? "← Back to sign in" : isSignUp ? "Already have an account? Sign in" : "Need an account? Sign up"}
         </button>
-        </button>
       </motion.div>
     </div>
   );
