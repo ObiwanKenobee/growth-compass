@@ -229,6 +229,9 @@ const AdminPanel = () => {
               </div>
             )}
           </div>
+
+          {/* User Management */}
+          <UserManagement isAdmin={isAdmin} />
         </div>
       </div>
     </AuthGate>
