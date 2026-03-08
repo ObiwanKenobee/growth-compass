@@ -20,7 +20,7 @@ export default function AuditLog({ isAdmin }: { isAdmin: boolean }) {
 
   const fetchLog = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("audit_log")
       .select("*")
       .order("changed_at", { ascending: false })
