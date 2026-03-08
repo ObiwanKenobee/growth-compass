@@ -16,7 +16,6 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgot, setIsForgot] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   if (user) return <>{children}</>;
 
