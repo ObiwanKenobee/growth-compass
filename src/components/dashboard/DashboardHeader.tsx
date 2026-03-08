@@ -35,32 +35,80 @@ const DashboardHeader = () => {
 
   const handleExportPDF = async () => {
     try {
-      const [health, pipeline, concentration] = await Promise.all([
+      const [metrics, channels, segments, health, pipeline, concentration, nrr, funnel, expansion, competitive] = await Promise.all([
+        supabase.from("dashboard_metrics").select("*").order("period_month", { ascending: true }),
+        supabase.from("acquisition_channels").select("*").order("customers", { ascending: false }),
+        supabase.from("customer_segments").select("*").order("ltv", { ascending: false }),
         supabase.from("customer_health").select("*").order("score", { ascending: false }),
         supabase.from("pipeline_velocity").select("*").order("period_month", { ascending: true }),
         supabase.from("revenue_concentration").select("*").order("revenue", { ascending: false }),
+        supabase.from("nrr_tracking").select("*").order("period_month", { ascending: false }).limit(1),
+        supabase.from("funnel_stages").select("*").order("stage_order", { ascending: true }),
+        supabase.from("expansion_revenue").select("*").order("period_month", { ascending: false }).limit(1),
+        supabase.from("competitive_analysis").select("*").order("wins", { ascending: false }),
       ]);
 
-      exportToPDF("Atlas Sanctum — Intelligence Report", [
+      const latestNRR = nrr.data?.[0];
+      const latestExp = expansion.data?.[0];
+
+      exportToPDF("Atlas Sanctum — Full Dashboard Report", [
+        {
+          heading: "Executive Summary",
+          rows: [
+            ["Metric", "Value"],
+            ["NRR", latestNRR ? `${latestNRR.nrr_value}% (target: ${latestNRR.target}%)` : "N/A"],
+            ["Expansion Revenue", latestExp ? `$${latestExp.total}` : "N/A"],
+            ["Healthy Accounts", `${health.data?.filter(a => a.status === "healthy").length || 0} / ${health.data?.length || 0}`],
+            ["Pipeline Win Rate", pipeline.data?.length ? `${pipeline.data[pipeline.data.length - 1].win_rate}%` : "N/A"],
+          ],
+        },
         {
           heading: "Customer Health",
           rows: [
-            ["Account", "Score", "Status", "Reason"],
-            ...(health.data || []).map(a => [a.name, String(a.score), a.status, a.reason]),
+            ["Account", "Score", "Status", "Revenue", "Reason"],
+            ...(health.data || []).map(a => [a.name, String(a.score), a.status, `$${a.revenue}`, a.reason]),
           ],
         },
         {
           heading: "Pipeline Velocity",
           rows: [
-            ["Month", "Velocity", "Deal Size", "Win Rate", "Won", "Lost"],
-            ...(pipeline.data || []).map(p => [p.period_month, `$${p.velocity}`, `$${p.avg_deal_size}`, `${p.win_rate}%`, String(p.deals_won), String(p.deals_lost)]),
+            ["Month", "Velocity", "Deal Size", "Win Rate", "Won", "Lost", "Cycle Time"],
+            ...(pipeline.data || []).map(p => [p.period_month, `$${p.velocity}`, `$${p.avg_deal_size}`, `${p.win_rate}%`, String(p.deals_won), String(p.deals_lost), `${p.avg_cycle_time}d`]),
           ],
         },
         {
           heading: "Revenue Concentration",
           rows: [
-            ["Customer", "Revenue", "Share", "Segment", "Risk"],
-            ...(concentration.data || []).map(c => [c.customer_name, `$${c.revenue}`, `${c.revenue_pct}%`, c.segment || "", c.risk_level || ""]),
+            ["Customer", "Revenue", "Share", "Segment", "Risk", "Growth"],
+            ...(concentration.data || []).map(c => [c.customer_name, `$${c.revenue}`, `${c.revenue_pct}%`, c.segment || "", c.risk_level || "", `${c.growth_trend || 0}%`]),
+          ],
+        },
+        {
+          heading: "Acquisition Channels",
+          rows: [
+            ["Channel", "Customers", "CAC"],
+            ...(channels.data || []).map(c => [c.name, String(c.customers), `$${c.cac}`]),
+          ],
+        },
+        {
+          heading: "Customer Segments",
+          rows: [
+            ["Segment", "Count", "LTV", "Contract Value", "Churn", "Growth"],
+            ...(segments.data || []).map(s => [s.name, String(s.customer_count), `$${s.ltv}`, `$${s.contract_value}`, `${s.churn_rate}%`, `${s.growth_rate}%`]),
+          ],
+        },
+        {
+          heading: "Funnel Stages",
+          rows: [
+            ["Stage", "Count", "Conversion Rate"],
+            ...(funnel.data || []).map(f => [f.stage_name, String(f.count), `${f.conversion_rate}%`]),
+          ],
+        },
+        {
+          heading: "Competitive Analysis",
+          rows: [
+            ["Competitor", "Wins", "Losses", "Top Reason"],
+            ...(competitive.data || []).map(c => [c.competitor_name, String(c.wins), String(c.losses), c.top_reason]),
           ],
         },
       ]);
