@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
 import { Swords, Trophy, XCircle } from "lucide-react";
-import { competitiveData } from "@/data/dashboardData";
+import { useCompetitiveAnalysis } from "@/hooks/useIntelligenceData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CompetitiveAnalysis = () => {
-  const { competitors, overallWinRate } = competitiveData;
+  const { data, isLoading } = useCompetitiveAnalysis();
+
+  if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
+
+  const { competitors, overallWinRate } = data!;
 
   return (
     <motion.div
@@ -21,22 +26,14 @@ const CompetitiveAnalysis = () => {
       </div>
 
       <div className="space-y-3">
-        {competitors.map((comp, i) => {
+        {competitors.map((comp: any, i: number) => {
           const total = comp.wins + comp.losses;
           const winPct = Math.round((comp.wins / total) * 100);
           return (
-            <motion.div
-              key={comp.name}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.7 + i * 0.05 }}
-              className="p-3 rounded-lg bg-secondary/30"
-            >
+            <motion.div key={comp.name} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 + i * 0.05 }} className="p-3 rounded-lg bg-secondary/30">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-foreground font-medium">{comp.name}</span>
-                <span className={`text-xs font-mono ${winPct >= 60 ? "text-success" : winPct >= 40 ? "text-warning" : "text-danger"}`}>
-                  {winPct}% win rate
-                </span>
+                <span className={`text-xs font-mono ${winPct >= 60 ? "text-success" : winPct >= 40 ? "text-warning" : "text-danger"}`}>{winPct}% win rate</span>
               </div>
               <div className="flex h-2 rounded-full overflow-hidden gap-0.5 mb-2">
                 <div className="bg-success rounded-l-full" style={{ width: `${winPct}%` }} />

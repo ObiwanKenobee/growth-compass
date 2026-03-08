@@ -1,10 +1,15 @@
 import { motion } from "framer-motion";
 import { TrendingUp, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, ReferenceLine } from "recharts";
-import { nrrData } from "@/data/dashboardData";
+import { useNRRTracking } from "@/hooks/useIntelligenceData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const NRRTracker = () => {
-  const { current, target, history, components } = nrrData;
+  const { data, isLoading } = useNRRTracking();
+
+  if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
+
+  const { current, target, history, components } = data!;
   const isAboveTarget = current >= target;
 
   return (
@@ -16,9 +21,7 @@ const NRRTracker = () => {
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-muted-foreground tracking-wide uppercase">Net Revenue Retention</h3>
-        <span className={`text-xs px-2 py-0.5 rounded-full font-mono border ${
-          isAboveTarget ? "text-success bg-success/10 border-success/20" : "text-warning bg-warning/10 border-warning/20"
-        }`}>
+        <span className={`text-xs px-2 py-0.5 rounded-full font-mono border ${isAboveTarget ? "text-success bg-success/10 border-success/20" : "text-warning bg-warning/10 border-warning/20"}`}>
           Target: {target}%
         </span>
       </div>
@@ -26,11 +29,7 @@ const NRRTracker = () => {
       <div className="flex items-end gap-3 mb-1">
         <span className="text-4xl font-bold font-display text-foreground">{current}%</span>
         <div className="flex items-center gap-1 mb-1.5">
-          {isAboveTarget ? (
-            <ArrowUpRight className="w-4 h-4 text-success" />
-          ) : (
-            <ArrowDownRight className="w-4 h-4 text-warning" />
-          )}
+          {isAboveTarget ? <ArrowUpRight className="w-4 h-4 text-success" /> : <ArrowDownRight className="w-4 h-4 text-warning" />}
           <span className={`text-sm font-mono ${isAboveTarget ? "text-success" : "text-warning"}`}>
             {current > 100 ? "+" : ""}{(current - 100).toFixed(0)}pp net
           </span>
@@ -60,7 +59,7 @@ const NRRTracker = () => {
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        {components.map(c => (
+        {components.map((c: any) => (
           <div key={c.label} className="p-3 rounded-lg bg-secondary/40 text-center">
             <p className="text-lg font-bold font-mono text-foreground">{c.value > 0 ? "+" : ""}{c.value}%</p>
             <p className="text-xs text-muted-foreground mt-0.5">{c.label}</p>

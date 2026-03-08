@@ -1,10 +1,15 @@
 import { motion } from "framer-motion";
 import { Zap, Clock, DollarSign, Target } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-import { pipelineData } from "@/data/dashboardData";
+import { usePipelineVelocity } from "@/hooks/useIntelligenceData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PipelineVelocity = () => {
-  const { velocity, avgDealSize, avgCycleTime, winRate, monthlyDeals } = pipelineData;
+  const { data, isLoading } = usePipelineVelocity();
+
+  if (isLoading) return <Skeleton className="h-64 rounded-xl" />;
+
+  const { velocity, avgDealSize, avgCycleTime, winRate, monthlyDeals } = data!;
 
   const kpis = [
     { label: "Pipeline Velocity", value: `$${(velocity / 1000).toFixed(0)}k`, sublabel: "per month", icon: Zap, accent: "text-primary" },
@@ -24,13 +29,7 @@ const PipelineVelocity = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         {kpis.map((kpi, i) => (
-          <motion.div
-            key={kpi.label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 + i * 0.06 }}
-            className="p-3 rounded-lg bg-secondary/40"
-          >
+          <motion.div key={kpi.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.06 }} className="p-3 rounded-lg bg-secondary/40">
             <kpi.icon className={`w-4 h-4 ${kpi.accent} mb-2`} />
             <p className="text-xl font-bold font-mono text-foreground">{kpi.value}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{kpi.sublabel}</p>

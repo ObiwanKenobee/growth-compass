@@ -68,6 +68,84 @@ export type Database = {
         }
         Relationships: []
       }
+      competitive_analysis: {
+        Row: {
+          competitor_name: string
+          created_at: string
+          id: string
+          losses: number
+          period_month: string
+          top_reason: string
+          wins: number
+        }
+        Insert: {
+          competitor_name: string
+          created_at?: string
+          id?: string
+          losses?: number
+          period_month: string
+          top_reason?: string
+          wins?: number
+        }
+        Update: {
+          competitor_name?: string
+          created_at?: string
+          id?: string
+          losses?: number
+          period_month?: string
+          top_reason?: string
+          wins?: number
+        }
+        Relationships: []
+      }
+      customer_health: {
+        Row: {
+          contract_end: string | null
+          contract_start: string | null
+          created_at: string
+          feature_adoption_pct: number | null
+          id: string
+          last_activity_date: string | null
+          name: string
+          nps_score: number | null
+          reason: string
+          revenue: number
+          score: number
+          status: string
+          support_tickets_open: number | null
+        }
+        Insert: {
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          feature_adoption_pct?: number | null
+          id?: string
+          last_activity_date?: string | null
+          name: string
+          nps_score?: number | null
+          reason?: string
+          revenue?: number
+          score?: number
+          status?: string
+          support_tickets_open?: number | null
+        }
+        Update: {
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          feature_adoption_pct?: number | null
+          id?: string
+          last_activity_date?: string | null
+          name?: string
+          nps_score?: number | null
+          reason?: string
+          revenue?: number
+          score?: number
+          status?: string
+          support_tickets_open?: number | null
+        }
+        Relationships: []
+      }
       customer_segments: {
         Row: {
           churn_rate: number
@@ -224,6 +302,114 @@ export type Database = {
           period_month?: string
           stage_name?: string
           stage_order?: number
+        }
+        Relationships: []
+      }
+      nrr_tracking: {
+        Row: {
+          churn: number
+          contraction: number
+          created_at: string
+          expansion: number
+          id: string
+          nrr_value: number
+          period_month: string
+          target: number
+        }
+        Insert: {
+          churn?: number
+          contraction?: number
+          created_at?: string
+          expansion?: number
+          id?: string
+          nrr_value: number
+          period_month: string
+          target?: number
+        }
+        Update: {
+          churn?: number
+          contraction?: number
+          created_at?: string
+          expansion?: number
+          id?: string
+          nrr_value?: number
+          period_month?: string
+          target?: number
+        }
+        Relationships: []
+      }
+      pipeline_velocity: {
+        Row: {
+          avg_cycle_time: number
+          avg_deal_size: number
+          created_at: string
+          deals_lost: number
+          deals_won: number
+          id: string
+          period_month: string
+          velocity: number
+          win_rate: number
+        }
+        Insert: {
+          avg_cycle_time?: number
+          avg_deal_size?: number
+          created_at?: string
+          deals_lost?: number
+          deals_won?: number
+          id?: string
+          period_month: string
+          velocity?: number
+          win_rate?: number
+        }
+        Update: {
+          avg_cycle_time?: number
+          avg_deal_size?: number
+          created_at?: string
+          deals_lost?: number
+          deals_won?: number
+          id?: string
+          period_month?: string
+          velocity?: number
+          win_rate?: number
+        }
+        Relationships: []
+      }
+      revenue_concentration: {
+        Row: {
+          contract_end: string | null
+          contract_start: string | null
+          created_at: string
+          customer_name: string
+          growth_trend: number | null
+          id: string
+          revenue: number
+          revenue_pct: number
+          risk_level: string | null
+          segment: string | null
+        }
+        Insert: {
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          customer_name: string
+          growth_trend?: number | null
+          id?: string
+          revenue?: number
+          revenue_pct?: number
+          risk_level?: string | null
+          segment?: string | null
+        }
+        Update: {
+          contract_end?: string | null
+          contract_start?: string | null
+          created_at?: string
+          customer_name?: string
+          growth_trend?: number | null
+          id?: string
+          revenue?: number
+          revenue_pct?: number
+          risk_level?: string | null
+          segment?: string | null
         }
         Relationships: []
       }
