@@ -4,6 +4,7 @@ import { AuthGate } from "@/components/admin/AuthGate";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Settings, LogOut, Plus, Trash2, Save, RefreshCw, ShieldAlert } from "lucide-react";
+import UserManagement from "@/components/admin/UserManagement";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole } from "@/hooks/useUserRole";
