@@ -4,6 +4,7 @@ import { AuthGate } from "@/components/admin/AuthGate";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Settings, LogOut, Plus, Trash2, Save, RefreshCw, ShieldAlert } from "lucide-react";
+import UserManagement from "@/components/admin/UserManagement";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -133,10 +134,26 @@ const AdminPanel = () => {
           {!roleLoading && !isAdmin && (
             <div className="flex items-center gap-3 p-4 rounded-xl bg-warning/5 border border-warning/20">
               <ShieldAlert className="w-5 h-5 text-warning flex-shrink-0" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-medium text-warning">Read-only access</p>
-                <p className="text-xs text-muted-foreground">You need admin privileges to modify data. Contact an administrator to get the admin role assigned.</p>
+                <p className="text-xs text-muted-foreground">You need admin privileges to modify data.</p>
               </div>
+              <button
+                onClick={async () => {
+                  try {
+                    const { data, error } = await supabase.functions.invoke("bootstrap-admin");
+                    if (error) throw error;
+                    if (data?.error) { toast.error(data.error); return; }
+                    toast.success("Admin role assigned! Refreshing...");
+                    window.location.reload();
+                  } catch (err: any) {
+                    toast.error(err.message || "Failed to bootstrap admin");
+                  }
+                }}
+                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors whitespace-nowrap"
+              >
+                Claim Admin
+              </button>
             </div>
           )}
 
@@ -228,6 +245,9 @@ const AdminPanel = () => {
               </div>
             )}
           </div>
+
+          {/* User Management */}
+          <UserManagement isAdmin={isAdmin} />
         </div>
       </div>
     </AuthGate>
