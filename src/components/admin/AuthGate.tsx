@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { LogIn, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -13,6 +14,7 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgot, setIsForgot] = useState(false);
   const [loading, setLoading] = useState(false);
 
   if (user) return <>{children}</>;
@@ -21,7 +23,14 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
     e.preventDefault();
     setLoading(true);
     try {
-      if (isSignUp) {
+      if (isForgot) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsForgot(false);
+      } else if (isSignUp) {
         const { error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         toast.success("Account created! Check your email to confirm.");
@@ -50,7 +59,7 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
           </div>
           <div>
             <h2 className="text-lg font-bold font-display text-foreground">Admin Access</h2>
-            <p className="text-xs text-muted-foreground">{isSignUp ? "Create account" : "Sign in to manage data"}</p>
+            <p className="text-xs text-muted-foreground">{isForgot ? "Reset your password" : isSignUp ? "Create account" : "Sign in to manage data"}</p>
           </div>
         </div>
         <form onSubmit={handleAuth} className="space-y-4">
@@ -65,31 +74,41 @@ export const AuthGate = ({ children, user }: AuthGateProps) => {
               className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Password"
-              required
-              minLength={6}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-          </div>
+          {!isForgot && (
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Password"
+                required
+                minLength={6}
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-secondary/50 border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
+              />
+            </div>
+          )}
           <button
             type="submit"
             disabled={loading}
             className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
-            {loading ? "..." : isSignUp ? "Create Account" : "Sign In"}
+            {loading ? "..." : isForgot ? "Send Reset Link" : isSignUp ? "Create Account" : "Sign In"}
           </button>
         </form>
+        {!isForgot && !isSignUp && (
+          <button
+            onClick={() => setIsForgot(true)}
+            className="w-full mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Forgot password?
+          </button>
+        )}
         <button
-          onClick={() => setIsSignUp(!isSignUp)}
-          className="w-full mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          onClick={() => { setIsSignUp(!isSignUp); setIsForgot(false); }}
+          className="w-full mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          {isSignUp ? "Already have an account? Sign in" : "Need an account? Sign up"}
+          {isForgot ? "← Back to sign in" : isSignUp ? "Already have an account? Sign in" : "Need an account? Sign up"}
         </button>
       </motion.div>
     </div>
