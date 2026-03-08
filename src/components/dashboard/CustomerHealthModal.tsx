@@ -22,7 +22,7 @@ interface CustomerHealthModalProps {
 }
 
 const CustomerHealthModal = ({ account, open, onOpenChange }: CustomerHealthModalProps) => {
-  if (!account) return null;
+  if (!account) return <Dialog open={false} onOpenChange={onOpenChange}><DialogContent className="hidden" /></Dialog>;
 
   const statusColor = account.status === "healthy" ? "text-success" : account.status === "at-risk" ? "text-warning" : "text-danger";
 
