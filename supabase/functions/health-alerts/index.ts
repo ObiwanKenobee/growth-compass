@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 Deno.serve(async (req) => {
@@ -19,14 +19,12 @@ Deno.serve(async (req) => {
     const healthThreshold = body.health_threshold ?? 40;
     const nrrThreshold = body.nrr_threshold ?? 100;
 
-    // Check customer health
     const { data: atRiskAccounts } = await supabase
       .from("customer_health")
       .select("name, score, status, reason, revenue")
       .lt("score", healthThreshold)
       .order("score", { ascending: true });
 
-    // Check NRR
     const { data: nrrRows } = await supabase
       .from("nrr_tracking")
       .select("nrr_value, target, period_month")
@@ -36,12 +34,12 @@ Deno.serve(async (req) => {
     const latestNRR = nrrRows?.[0];
     const nrrBelowTarget = latestNRR && Number(latestNRR.nrr_value) < nrrThreshold;
 
-    const alerts: { type: string; severity: string; message: string; details: Record<string, unknown> }[] = [];
+    const alerts: { alert_type: string; severity: string; message: string; details: Record<string, unknown> }[] = [];
 
     if (atRiskAccounts && atRiskAccounts.length > 0) {
       for (const acct of atRiskAccounts) {
         alerts.push({
-          type: "customer_health",
+          alert_type: "customer_health",
           severity: acct.score < 20 ? "critical" : "warning",
           message: `${acct.name} health score dropped to ${acct.score} — ${acct.reason}`,
           details: { name: acct.name, score: acct.score, status: acct.status, revenue: acct.revenue },
@@ -51,14 +49,22 @@ Deno.serve(async (req) => {
 
     if (nrrBelowTarget && latestNRR) {
       alerts.push({
-        type: "nrr_below_target",
+        alert_type: "nrr_below_target",
         severity: Number(latestNRR.nrr_value) < 95 ? "critical" : "warning",
         message: `NRR at ${latestNRR.nrr_value}% (target: ${latestNRR.target}%) for ${latestNRR.period_month}`,
         details: { nrr: latestNRR.nrr_value, target: latestNRR.target, period: latestNRR.period_month },
       });
     }
 
-    return new Response(JSON.stringify({ alerts, checked_at: new Date().toISOString() }), {
+    const checkedAt = new Date().toISOString();
+
+    // Log alerts to the health_alerts table
+    if (alerts.length > 0) {
+      const rows = alerts.map(a => ({ ...a, checked_at: checkedAt }));
+      await supabase.from("health_alerts").insert(rows);
+    }
+
+    return new Response(JSON.stringify({ alerts, checked_at: checkedAt }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
