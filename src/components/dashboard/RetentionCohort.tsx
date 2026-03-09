@@ -39,8 +39,8 @@ const RetentionCohort = () => {
       </div>
 
       <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider">Cohort Retention (%)</p>
-      {isLoading ? (
-        <div className="h-40 bg-secondary/30 rounded animate-pulse" />
+      {cohortLoading ? (
+        <Skeleton className="h-40 rounded" />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs font-mono">

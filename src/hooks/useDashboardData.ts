@@ -234,3 +234,62 @@ export function useGrowthRadarData() {
     churn: { current: latestChurn, trend: churnTrend, history: churnHistory },
   };
 }
+
+export function useUnitEconomics() {
+  const { cac, ltv, isLoading } = useGrowthRadarData();
+  const ratio = cac.current > 0 ? ltv.current / cac.current : 0;
+  
+  // Calculate history from CAC and LTV histories
+  const history = cac.history.map((c, i) => {
+    const ltvVal = ltv.history[i]?.value || 0;
+    const cacVal = c.value || 1;
+    return { month: c.month, value: Number((ltvVal / cacVal).toFixed(2)) };
+  });
+
+  return {
+    isLoading,
+    ratio: Number(ratio.toFixed(2)),
+    history,
+    threshold: mockDashboard.ltvCacRatio.threshold,
+  };
+}
+
+export function useEngagementMetrics() {
+  const fallback = mockDashboard.engagementMetrics;
+  return useFallbackQuery(
+    ["engagement-metrics"],
+    async () => {
+      const { data, error } = await supabase
+        .from("dashboard_metrics")
+        .select("*")
+        .in("metric_type", ["assets_verified", "simulations", "analyses", "reports"])
+        .order("period_month", { ascending: false });
+      if (error) throw error;
+      if (!data || data.length === 0) return fallback;
+      
+      // Group by metric type and get latest
+      const grouped: Record<string, { value: number; trend: number }> = {};
+      const byType: Record<string, typeof data> = {};
+      data.forEach(d => {
+        if (!byType[d.metric_type]) byType[d.metric_type] = [];
+        byType[d.metric_type].push(d);
+      });
+      
+      Object.entries(byType).forEach(([type, items]) => {
+        const sorted = items.sort((a, b) => b.period_month.localeCompare(a.period_month));
+        const latest = sorted[0];
+        const prev = sorted[1];
+        const trend = prev ? Number((((latest.value - prev.value) / prev.value) * 100).toFixed(0)) : 0;
+        grouped[type] = { value: latest.value, trend };
+      });
+      
+      return {
+        assetsProcessed: grouped.assets_verified || fallback.assetsProcessed,
+        simulationRuns: grouped.simulations || fallback.simulationRuns,
+        ecosystemAnalyses: grouped.analyses || fallback.ecosystemAnalyses,
+        reportsGenerated: grouped.reports || fallback.reportsGenerated,
+      };
+    },
+    fallback
+  );
+}
