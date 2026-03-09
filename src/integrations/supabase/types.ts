@@ -338,6 +338,36 @@ export type Database = {
         }
         Relationships: []
       }
+      health_alerts: {
+        Row: {
+          alert_type: string
+          checked_at: string
+          created_at: string
+          details: Json | null
+          id: string
+          message: string
+          severity: string
+        }
+        Insert: {
+          alert_type: string
+          checked_at?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          message: string
+          severity?: string
+        }
+        Update: {
+          alert_type?: string
+          checked_at?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          message?: string
+          severity?: string
+        }
+        Relationships: []
+      }
       nrr_tracking: {
         Row: {
           churn: number
