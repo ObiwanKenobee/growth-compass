@@ -5,6 +5,7 @@ import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import NotificationsBell from "./NotificationsBell";
 
 const DashboardHeader = () => {
   const handleExportCSV = async () => {
@@ -134,6 +135,7 @@ const DashboardHeader = () => {
         </div>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
+        <NotificationsBell />
         <DropdownMenu>
           <DropdownMenuTrigger className="px-3 py-1.5 rounded-lg bg-secondary/50 border border-border text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
             <Download className="w-3.5 h-3.5" />
