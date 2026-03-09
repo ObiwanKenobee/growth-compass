@@ -1,18 +1,20 @@
 import { motion } from "framer-motion";
 import { Activity, BarChart3, FileText, Cpu } from "lucide-react";
-import { useCohortRetention } from "@/hooks/useDashboardData";
-import { engagementMetrics } from "@/data/dashboardData";
+import { useCohortRetention, useEngagementMetrics } from "@/hooks/useDashboardData";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const RetentionCohort = () => {
-  const { data: cohortData, isLoading } = useCohortRetention();
+  const { data: cohortData, isLoading: cohortLoading } = useCohortRetention();
+  const { data: engagementData, isLoading: engagementLoading } = useEngagementMetrics();
   const maxMonths = cohortData ? Math.max(...cohortData.map(c => c.months.length)) : 0;
+  const isLoading = cohortLoading || engagementLoading;
 
-  const metrics = [
-    { label: "Assets Verified", ...engagementMetrics.assetsProcessed, icon: Activity },
-    { label: "Simulations", ...engagementMetrics.simulationRuns, icon: Cpu },
-    { label: "Analyses", ...engagementMetrics.ecosystemAnalyses, icon: BarChart3 },
-    { label: "Reports", ...engagementMetrics.reportsGenerated, icon: FileText },
-  ];
+  const metrics = engagementData ? [
+    { label: "Assets Verified", ...engagementData.assetsProcessed, icon: Activity },
+    { label: "Simulations", ...engagementData.simulationRuns, icon: Cpu },
+    { label: "Analyses", ...engagementData.ecosystemAnalyses, icon: BarChart3 },
+    { label: "Reports", ...engagementData.reportsGenerated, icon: FileText },
+  ] : [];
 
   return (
     <motion.div
