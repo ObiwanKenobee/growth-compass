@@ -5,6 +5,7 @@ import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import NotificationsBell from "./NotificationsBell";
 
 const DashboardHeader = () => {
   const handleExportCSV = async () => {
