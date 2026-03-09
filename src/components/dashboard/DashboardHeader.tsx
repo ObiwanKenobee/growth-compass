@@ -135,6 +135,7 @@ const DashboardHeader = () => {
         </div>
       </div>
       <div className="flex items-center gap-2 flex-wrap">
+        <NotificationsBell />
         <DropdownMenu>
           <DropdownMenuTrigger className="px-3 py-1.5 rounded-lg bg-secondary/50 border border-border text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5">
             <Download className="w-3.5 h-3.5" />
