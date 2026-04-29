@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface Alert {
   id: string;
@@ -41,6 +42,18 @@ const NotificationsBell = () => {
   const criticalCount = alerts.filter(a => a.severity === "critical").length;
   const hasAlerts = alerts.length > 0;
 
+  const handleClearAll = async () => {
+    if (!hasAlerts) return;
+    const ids = alerts.map(a => a.id);
+    const { error } = await supabase.from("health_alerts").delete().in("id", ids);
+    if (error) {
+      toast.error("Admin role required to dismiss alerts");
+      return;
+    }
+    setAlerts([]);
+    toast.success("All alerts dismissed");
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="relative px-2 py-1.5 rounded-lg bg-secondary/50 border border-border text-muted-foreground hover:text-foreground transition-colors">
@@ -54,9 +67,19 @@ const NotificationsBell = () => {
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 max-h-96 overflow-y-auto bg-card border-border p-0" align="end">
-        <div className="px-3 py-2 border-b border-border flex items-center justify-between">
+        <div className="px-3 py-2 border-b border-border flex items-center justify-between gap-2">
           <span className="text-xs font-medium text-foreground">Health Alerts</span>
-          {loading && <span className="text-[10px] text-muted-foreground">Refreshing…</span>}
+          <div className="flex items-center gap-2">
+            {loading && <span className="text-[10px] text-muted-foreground">Refreshing…</span>}
+            {hasAlerts && (
+              <button
+                onClick={handleClearAll}
+                className="text-[10px] text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+              >
+                <Trash2 className="w-3 h-3" /> Clear all
+              </button>
+            )}
+          </div>
         </div>
         {alerts.length === 0 ? (
           <div className="px-3 py-6 text-center text-xs text-muted-foreground">No active alerts</div>
