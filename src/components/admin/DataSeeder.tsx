@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Database, Sparkles, Trash2, Loader2 } from "lucide-react";
+import { Database, Sparkles, Trash2, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import * as mock from "@/data/dashboardData";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Props {
   isAdmin: boolean;
@@ -141,11 +144,26 @@ function buildSeed(name: SeedTable): any[] {
   }
 }
 
+type PreviewMode = { kind: "single"; name: SeedTable; label: string } | { kind: "all" } | null;
+
 const DataSeeder = ({ isAdmin }: Props) => {
   const [busy, setBusy] = useState<string | null>(null);
+  const [preview, setPreview] = useState<PreviewMode>(null);
   const queryClient = useQueryClient();
 
-  const handleSeed = async (name: SeedTable, label: string) => {
+  // Pre-compute row counts (cheap, deterministic)
+  const counts = useMemo(() => {
+    const m: Record<SeedTable, number> = {} as Record<SeedTable, number>;
+    tableMeta.forEach(t => { m[t.name] = buildSeed(t.name).length; });
+    return m;
+  }, []);
+
+  const totalRows = useMemo(
+    () => tableMeta.reduce((sum, t) => sum + counts[t.name], 0),
+    [counts]
+  );
+
+  const insertSingle = async (name: SeedTable, label: string) => {
     setBusy(`seed-${name}`);
     try {
       const rows = buildSeed(name);
@@ -158,6 +176,7 @@ const DataSeeder = ({ isAdmin }: Props) => {
       toast.error(e.message || "Seed failed");
     } finally {
       setBusy(null);
+      setPreview(null);
     }
   };
 
@@ -176,24 +195,42 @@ const DataSeeder = ({ isAdmin }: Props) => {
     }
   };
 
-  const handleSeedAll = async () => {
-    if (!confirm("Seed sample data into ALL tables? Existing rows will remain.")) return;
+  const insertAll = async () => {
     setBusy("seed-all");
-    let ok = 0, fail = 0;
+    let ok = 0, fail = 0, total = 0;
     for (const t of tableMeta) {
       try {
         const rows = buildSeed(t.name);
         const { error } = await supabase.from(t.name).insert(rows as any);
         if (error) throw error;
-        ok++;
+        ok++; total += rows.length;
       } catch {
         fail++;
       }
     }
     queryClient.invalidateQueries();
     setBusy(null);
-    toast.success(`Seeded ${ok} tables${fail ? `, ${fail} failed` : ""}`);
+    setPreview(null);
+    toast.success(`Seeded ${total} rows across ${ok} tables${fail ? `, ${fail} failed` : ""}`);
   };
+
+  // Build payload for the preview dialog
+  const previewPayload = useMemo(() => {
+    if (!preview) return null;
+    if (preview.kind === "single") {
+      const rows = buildSeed(preview.name);
+      return {
+        title: `Preview: ${preview.label}`,
+        sections: [{ name: preview.name, label: preview.label, rows }],
+        total: rows.length,
+      };
+    }
+    return {
+      title: "Preview: Seed All Tables",
+      sections: tableMeta.map(t => ({ name: t.name, label: t.label, rows: buildSeed(t.name) })),
+      total: totalRows,
+    };
+  }, [preview, totalRows]);
 
   return (
     <motion.div
@@ -208,29 +245,45 @@ const DataSeeder = ({ isAdmin }: Props) => {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">Data Seeder</h3>
-            <p className="text-xs text-muted-foreground">Populate tables with realistic sample data for demos & testing.</p>
+            <p className="text-xs text-muted-foreground">Populate tables with realistic sample data. Preview before committing.</p>
           </div>
         </div>
-        <button
-          onClick={handleSeedAll}
-          disabled={!isAdmin || busy !== null}
-          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1.5 hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {busy === "seed-all" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-          Seed All Tables
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono text-muted-foreground">
+            {totalRows} rows total
+          </span>
+          <button
+            onClick={() => setPreview({ kind: "all" })}
+            disabled={!isAdmin || busy !== null}
+            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1.5 hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {busy === "seed-all" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            Preview & Seed All
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {tableMeta.map(t => (
           <div key={t.name} className="flex items-center justify-between gap-3 p-3 rounded-lg bg-secondary/30 border border-border/50">
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-foreground truncate">{t.label}</p>
+              <p className="text-xs font-medium text-foreground truncate">
+                {t.label}
+                <span className="ml-2 text-[10px] font-mono text-muted-foreground">{counts[t.name]} rows</span>
+              </p>
               <p className="text-[10px] text-muted-foreground truncate">{t.description}</p>
             </div>
             <div className="flex gap-1 flex-shrink-0">
               <button
-                onClick={() => handleSeed(t.name, t.label)}
+                onClick={() => setPreview({ kind: "single", name: t.name, label: t.label })}
+                disabled={busy !== null}
+                className="p-1.5 rounded bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                title="Preview generated rows"
+              >
+                <Eye className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setPreview({ kind: "single", name: t.name, label: t.label })}
                 disabled={!isAdmin || busy !== null}
                 className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 title="Seed sample data"
@@ -251,10 +304,65 @@ const DataSeeder = ({ isAdmin }: Props) => {
       </div>
 
       {!isAdmin && (
-        <p className="text-[10px] text-warning mt-3">Admin role required to seed or clear data.</p>
+        <p className="text-[10px] text-warning mt-3">Admin role required to seed or clear data. (Preview is still available.)</p>
       )}
+
+      {/* Preview Dialog */}
+      <Dialog open={preview !== null} onOpenChange={open => !open && setPreview(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-foreground">{previewPayload?.title}</DialogTitle>
+            <DialogDescription>
+              {previewPayload?.total} row{previewPayload?.total === 1 ? "" : "s"} will be inserted.
+              Showing first 3 rows per table.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {previewPayload?.sections.map(s => (
+              <div key={s.name} className="rounded-lg border border-border/50 overflow-hidden">
+                <div className="px-3 py-2 bg-secondary/40 flex items-center justify-between">
+                  <span className="text-xs font-medium text-foreground">{s.label}</span>
+                  <span className="text-[10px] font-mono text-muted-foreground">{s.rows.length} rows</span>
+                </div>
+                {s.rows.length === 0 ? (
+                  <p className="px-3 py-2 text-[11px] text-muted-foreground italic">No sample data defined.</p>
+                ) : (
+                  <pre className="px-3 py-2 text-[10px] font-mono text-muted-foreground bg-background/40 overflow-x-auto leading-relaxed">
+{JSON.stringify(s.rows.slice(0, 3), null, 2)}
+{s.rows.length > 3 ? `\n…and ${s.rows.length - 3} more row${s.rows.length - 3 === 1 ? "" : "s"}` : ""}
+                  </pre>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={() => setPreview(null)}
+              disabled={busy !== null}
+              className="px-4 py-2 rounded-lg bg-secondary border border-border text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (!preview) return;
+                if (preview.kind === "single") insertSingle(preview.name, preview.label);
+                else insertAll();
+              }}
+              disabled={!isAdmin || busy !== null}
+              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1.5 hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+              Confirm & Insert {previewPayload?.total} rows
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };
 
 export default DataSeeder;
+
