@@ -3,7 +3,7 @@ import { useAcquisitionChannels } from "@/hooks/useDashboardData";
 
 const AcquisitionChannels = () => {
   const { data: channels, isLoading } = useAcquisitionChannels();
-  const maxCustomers = channels ? Math.max(...channels.map(c => c.customers)) : 1;
+  const maxCustomers = channels && channels.length > 0 ? Math.max(...channels.map(c => c.customers)) : 1;
 
   return (
     <motion.div
