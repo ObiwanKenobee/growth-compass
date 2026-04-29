@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Settings, LogOut, Plus, Trash2, Save, RefreshCw, ShieldAlert } from "lucide-react";
 import UserManagement from "@/components/admin/UserManagement";
 import AuditLog from "@/components/admin/AuditLog";
+import DataSeeder from "@/components/admin/DataSeeder";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -157,6 +158,9 @@ const AdminPanel = () => {
               </button>
             </div>
           )}
+
+          {/* Data Seeder */}
+          <DataSeeder isAdmin={isAdmin} />
 
           {/* Table Selector */}
           <div className="flex gap-2 flex-wrap">
