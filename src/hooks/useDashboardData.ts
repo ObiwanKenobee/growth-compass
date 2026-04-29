@@ -32,16 +32,18 @@ function sliceByRange<T>(arr: T[], range: DateRange): T[] {
   return arr.slice(-n);
 }
 
+function norm(s: string | null | undefined) {
+  return (s ?? "").trim().toLowerCase();
+}
+
 function matchSegment(name: string, segment: Segment): boolean {
   if (segment === "all") return true;
-  const target = segmentLabel[segment];
-  return name?.toLowerCase().includes(target.toLowerCase().split(" ")[0]);
+  return norm(name) === norm(segmentLabel[segment]);
 }
 
 function matchChannel(name: string, channel: Channel): boolean {
   if (channel === "all") return true;
-  const target = channelLabel[channel];
-  return name?.toLowerCase().includes(target.toLowerCase().split(" ")[0]);
+  return norm(name) === norm(channelLabel[channel]);
 }
 
 function useFallbackQuery<T>(key: string[], fetcher: () => Promise<T>, fallback: T) {

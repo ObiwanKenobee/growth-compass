@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Calendar, Users, Megaphone } from "lucide-react";
+import { Calendar, Users, Megaphone, RotateCcw } from "lucide-react";
 import { useFilters, DateRange, Segment, Channel } from "@/contexts/FilterContext";
 
 const dateRangeOptions: { value: DateRange; label: string }[] = [
@@ -59,7 +59,7 @@ function PillGroup<T extends string>({ options, selected, onChange, icon }: Pill
 }
 
 const DashboardFilters = () => {
-  const { dateRange, setDateRange, segment, setSegment, channel, setChannel } = useFilters();
+  const { dateRange, setDateRange, segment, setSegment, channel, setChannel, reset, isDefault } = useFilters();
 
   return (
     <motion.div
@@ -68,9 +68,21 @@ const DashboardFilters = () => {
       transition={{ duration: 0.4, delay: 0.15 }}
       className="rounded-xl border border-border gradient-card p-4 flex flex-col gap-3"
     >
-      <PillGroup options={dateRangeOptions} selected={dateRange} onChange={setDateRange} icon={<Calendar className="w-3.5 h-3.5" />} />
-      <PillGroup options={segmentOptions} selected={segment} onChange={setSegment} icon={<Users className="w-3.5 h-3.5" />} />
-      <PillGroup options={channelOptions} selected={channel} onChange={setChannel} icon={<Megaphone className="w-3.5 h-3.5" />} />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-3 flex-1 min-w-0">
+          <PillGroup options={dateRangeOptions} selected={dateRange} onChange={setDateRange} icon={<Calendar className="w-3.5 h-3.5" />} />
+          <PillGroup options={segmentOptions} selected={segment} onChange={setSegment} icon={<Users className="w-3.5 h-3.5" />} />
+          <PillGroup options={channelOptions} selected={channel} onChange={setChannel} icon={<Megaphone className="w-3.5 h-3.5" />} />
+        </div>
+        <button
+          onClick={reset}
+          disabled={isDefault}
+          title="Reset filters to defaults"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary/60 border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+        >
+          <RotateCcw className="w-3 h-3" /> Reset
+        </button>
+      </div>
     </motion.div>
   );
 };
